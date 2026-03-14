@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>ORACLE — AI Fashion Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #060606; color: #e8e2d8; font-family: 'Cormorant Garamond', serif; min-height: 100vh; }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: #0a0a0a; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2a; }
+  .app { display: flex; flex-direction: column; min-height: 100vh; }
+  header { padding: 1.6rem 2rem 1.2rem; border-bottom: 1px solid #1c1c1c; display: flex; justify-content: space-between; align-items: flex-end; }
+  .eyebrow { font-family: 'Josefin Sans', sans-serif; font-size: 0.5rem; letter-spacing: 0.45em; color: #444; margin-bottom: 0.3rem; }
+  h1 { font-size: 2.4rem; font-weight: 300; letter-spacing: 0.18em; line-height: 1; }
+  .header-right { font-family: 'Josefin Sans', sans-serif; font-size: 0.44rem; letter-spacing: 0.22em; color: #252525; text-align: right; line-height: 1.9; }
+  .layout { display: grid; grid-template-columns: 300px 1fr; flex: 1; }
+  aside { border-right: 1px solid #1c1c1c; display: flex; flex-direction: column; overflow-y: auto; max-height: calc(100vh - 80px); position: sticky; top: 0; }
+  .sec-tabs { display: flex; border-bottom: 1px solid #1a1a1a; flex-shrink: 0; }
+  .sec-tab { flex: 1; padding: 0.82rem 0; font-family: 'Josefin Sans', sans-serif; font-size: 0.48rem; letter-spacing: 0.2em; background: transparent; border: none; border-bottom: 1px solid transparent; color: #2e2e2e; cursor: pointer; margin-bottom: -1px; transition: color 0.15s; }
+  .sec-tab.active { color: #b8955a; border-bottom-color: #b8955a; }
+  .sidebar-body { padding: 1.5rem 1.4rem; display: flex; flex-direction: column; gap: 1.5rem; flex: 1; }
+  .chip { cursor: pointer; font-family: 'Josefin Sans', sans-serif; font-weight: 300; transition: all 0.15s; background: transparent; border: 1px solid #1a1a1a; color: #4a4a4a; }
+  .chip:hover { border-color: #b8955a; color: #ccc; }
+  .chip.active { background: rgba(184,149,90,0.1); border-color: #b8955a; color: #b8955a; }
+  .style-chips { display: flex; flex-direction: column; gap: 0.4rem; }
+  .style-chip { display: flex; justify-content: space-between; align-items: center; padding: 0.56rem 0.82rem; font-size: 0.74rem; letter-spacing: 0.07em; text-align: left; width: 100%; }
+  .style-chip .en { font-size: 0.5rem; color: #252525; transition: color 0.15s; }
+  .style-chip.active .en { color: rgba(184,149,90,0.65); }
+  .brand-chips { display: flex; flex-wrap: wrap; gap: 0.36rem; }
+  .brand-chip { padding: 0.3rem 0.72rem; font-size: 0.62rem; letter-spacing: 0.05em; }
+  .budget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.36rem; }
+  .budget-chip { padding: 0.46rem 0; font-size: 0.62rem; letter-spacing: 0.04em; width: 100%; }
+  .label { font-family: 'Josefin Sans', sans-serif; font-size: 0.46rem; letter-spacing: 0.32em; color: #2e2e2e; margin-bottom: 0.85rem; }
+  .sublabel { font-family: 'Josefin Sans', sans-serif; font-size: 0.4rem; letter-spacing: 0.14em; color: #1e1e1e; margin-top: -0.6rem; margin-bottom: 1rem; }
+  .tier-label { font-family: 'Josefin Sans', sans-serif; font-size: 0.38rem; letter-spacing: 0.28em; color: #1e1e1e; margin-bottom: 0.42rem; }
+  textarea { width: 100%; background: transparent; border: 1px solid #1a1a1a; color: #b0a898; font-family: 'Cormorant Garamond', serif; font-size: 0.84rem; padding: 0.78rem; resize: none; height: 95px; outline: none; line-height: 1.7; transition: border 0.2s; }
+  textarea:focus { border-color: #333; }
+  .cta-btn { width: 100%; padding: 0.9rem; border: none; font-family: 'Josefin Sans', sans-serif; font-size: 0.55rem; letter-spacing: 0.38em; font-weight: 400; cursor: pointer; transition: all 0.2s; background: #b8955a; color: #060606; }
+  .cta-btn:disabled { background: #0d0d0d; color: #1e1e1e; cursor: not-allowed; }
+  .cta-btn.loading { background: #141414; color: #2a2a2a; cursor: wait; }
+  .footer-cities { font-family: 'Josefin Sans', sans-serif; font-size: 0.38rem; letter-spacing: 0.16em; color: #161616; line-height: 2.2; margin-top: auto; padding-top: 1.5rem; }
+  main { padding: 2.2rem 2.8rem; overflow-y: auto; }
+  .empty-state { height: 60vh; display: flex; flex-direction: column; justify-content: center; gap: 1rem; opacity: 0.18; }
+  .empty-tagline { font-size: 3.5rem; font-weight: 300; line-height: 1.15; color: #555; }
+  .empty-sub { font-family: 'Josefin Sans', sans-serif; font-size: 0.5rem; letter-spacing: 0.28em; color: #333; }
+  .skeleton-wrap { padding-top: 0.5rem; display: flex; flex-direction: column; gap: 0.85rem; }
+  .skel { background: #0f0f0f; }
+  @keyframes pulse { 0%,100%{opacity:.2} 50%{opacity:.5} }
+  .skel { animation: pulse 1.6s ease infinite; }
+  .scan-msg { font-family: 'Josefin Sans', sans-serif; font-size: 0.48rem; letter-spacing: 0.28em; color: #1c1c1c; margin-top: 0.4rem; }
+  @keyframes fu { from { opacity:0; transform:translateY(13px); } to { opacity:1; transform:translateY(0); } }
+  .fu1 { animation: fu 0.45s 0.05s ease forwards; opacity: 0; }
+  .fu2 { animation: fu 0.45s 0.15s ease forwards; opacity: 0; }
+  .fu3 { animation: fu 0.45s 0.25s ease forwards; opacity: 0; }
+  .season-tag { font-family: 'Josefin Sans', sans-serif; font-size: 0.48rem; letter-spacing: 0.32em; color: #b8955a; margin-bottom: 0.48rem; }
+  .headline { font-size: 1.8rem; font-weight: 300; line-height: 1.3; margin-bottom: 0.8rem; }
+  .summary { font-size: 0.88rem; color: #666; line-height: 1.9; font-style: italic; max-width: 500px; }
+  .divider { border: none; border-top: 1px solid #141414; margin: 1.8rem 0; }
+  .palette-row { display: flex; gap: 0.48rem; margin-bottom: 0.6rem; align-items: flex-end; }
+  .swatch-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+  .swatch-hex { font-family: 'Josefin Sans', sans-serif; font-size: 0.36rem; color: #2a2a2a; }
+  .palette-story { font-size: 0.78rem; color: #444; font-style: italic; }
+  .result-tabs { display: flex; border-bottom: 1px solid #141414; margin-bottom: 1.6rem; overflow-x: auto; }
+  .result-tab { font-family: 'Josefin Sans', sans-serif; font-size: 0.48rem; letter-spacing: 0.2em; padding: 0.7rem 1.1rem; background: transparent; border: none; border-bottom: 1px solid transparent; color: #2e2e2e; cursor: pointer; margin-bottom: -1px; transition: color 0.15s; white-space: nowrap; }
+  .result-tab.active { color: #b8955a; border-bottom-color: #b8955a; }
+  .trend-card { margin-bottom: 1.1rem; padding: 1.3rem; border: 1px solid #0f0f0f; background: #080808; }
+  .trend-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.52rem; }
+  .trend-name { font-size: 0.98rem; font-weight: 400; }
+  .trend-num { font-family: 'Josefin Sans', sans-serif; font-size: 0.4rem; color: #1a1a1a; }
+  .trend-desc { font-size: 0.82rem; color: #565656; line-height: 1.88; font-style: italic; margin-bottom: 0.82rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.36rem; }
+  .tag { font-family: 'Josefin Sans', sans-serif; font-size: 0.48rem; letter-spacing: 0.1em; color: #b8955a; border: 1px solid rgba(184,149,90,0.22); padding: 0.15rem 0.58rem; }
+  .color-story { font-size: 0.7rem; color: #2e2e2e; font-style: italic; margin-top: 0.52rem; }
+  .outfits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+  .outfit-card { border: 1px solid #0f0f0f; background: #080808; padding: 1.3rem; }
+  .outfit-meta { display: flex; justify-content: space-between; margin-bottom: 0.3rem; }
+  .look-num { font-family: 'Josefin Sans', sans-serif; font-size: 0.4rem; letter-spacing: 0.2em; color: #1a1a1a; }
+  .occasion { font-family: 'Josefin Sans', sans-serif; font-size: 0.44rem; color: rgba(184,149,90,0.6); }
+  .outfit-title { font-size: 0.88rem; font-weight: 400; margin-bottom: 0.95rem; }
+  .look-item { display: flex; gap: 0.52rem; padding: 0.33rem 0; border-bottom: 1px solid #0d0d0d; }
+  .arrow { color: #1e1e1e; font-size: 0.6rem; flex-shrink: 0; margin-top: 0.08rem; }
+  .look-text { font-size: 0.76rem; color: #888; line-height: 1.5; }
+  .outfit-tip { font-size: 0.7rem; color: #3c3c3c; font-style: italic; line-height: 1.6; border-top: 1px solid rgba(184,149,90,0.12); padding-top: 0.7rem; margin-top: 0.85rem; }
+  .deals-intro { font-size: 0.74rem; color: #2e2e2e; font-style: italic; margin-bottom: 1.3rem; line-height: 1.7; }
+  .deals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.95rem; }
+  .deal-card { border: 1px solid #111; background: #080808; padding: 1.3rem; }
+  .deal-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.45rem; }
+  .deal-brand { font-family: 'Josefin Sans', sans-serif; font-size: 0.56rem; letter-spacing: 0.13em; color: #b8955a; }
+  .deal-badge { font-family: 'Josefin Sans', sans-serif; font-size: 0.5rem; color: #4d8c62; border: 1px solid rgba(77,140,98,0.28); padding: 0.11rem 0.45rem; }
+  .deal-item { font-size: 0.88rem; font-weight: 400; margin-bottom: 0.62rem; line-height: 1.4; }
+  .deal-prices { display: flex; gap: 0.7rem; align-items: baseline; margin-bottom: 0.7rem; }
+  .sale-price { font-size: 1rem; font-weight: 400; }
+  .orig-price { font-family: 'Josefin Sans', sans-serif; font-size: 0.56rem; color: #262626; text-decoration: line-through; }
+  .deal-why { font-size: 0.74rem; color: #424242; font-style: italic; line-height: 1.65; margin-bottom: 0.85rem; }
+  .shop-link { font-family: 'Josefin Sans', sans-serif; font-size: 0.48rem; letter-spacing: 0.18em; color: #2a2a2a; border-bottom: 1px solid #1e1e1e; padding-bottom: 0.1rem; text-decoration: none; transition: color 0.15s; }
+  .shop-link:hover { color: #b8955a; }
+  .error-msg { font-size: 0.72rem; color: #8b3a3a; font-style: italic; margin-top: 0.65rem; line-height: 1.5; }
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { border-right: none; border-bottom: 1px solid #1c1c1c; max-height: none; position: static; }
+    main { padding: 1.5rem; }
+    header { padding: 1.2rem 1.5rem; }
+    h1 { font-size: 1.9rem; }
+    .empty-tagline { font-size: 2.8rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="eyebrow">AI FASHION INTELLIGENCE</div>
+      <h1>ORACLE</h1>
+    </div>
+    <div class="header-right">2025 S/S · A/W<br>CANADA EDITION</div>
+  </header>
+
+  <div class="layout">
+    <aside>
+      <div class="sec-tabs">
+        <button class="sec-tab active" onclick="switchSection('style')">TREND</button>
+        <button class="sec-tab" onclick="switchSection('deals')">CA DEALS</button>
+      </div>
+      <div class="sidebar-body">
+
+        <div id="panel-style">
+          <div class="label">YOUR AESTHETIC</div>
+          <div class="style-chips" id="styleChips"></div>
+          <div style="margin-top:1.4rem">
+            <div class="label">PERSONAL BRIEF</div>
+            <textarea id="briefInput" placeholder="描述需求...&#10;例如：秋冬职场通勤，大地色系，&#10;身材高挑，预算中等"></textarea>
+          </div>
+        </div>
+
+        <div id="panel-deals" style="display:none">
+          <div class="label">SELECT BRANDS</div>
+          <div class="sublabel">AI SEARCHES CURRENT SALE ITEMS</div>
+          <div id="brandChips"></div>
+          <div style="margin-top:1.2rem">
+            <div class="label">BUDGET (CAD)</div>
+            <div class="budget-grid" id="budgetChips"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:auto">
+          <button class="cta-btn" id="generateBtn" onclick="generate()">GENERATE REPORT →</button>
+          <div class="error-msg" id="errorMsg" style="display:none"></div>
+          <div class="footer-cities">PARIS · MILAN · NEW YORK<br>LONDON · TOKYO · VANCOUVER</div>
+        </div>
+      </div>
+    </aside>
+
+    <main id="mainContent">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-tagline">Dress<br><em>the future.</em></div>
+        <div class="empty-sub">SELECT OPTIONS TO BEGIN</div>
+      </div>
+      <div id="skeletonState" style="display:none" class="skeleton-wrap">
+        <div class="skel" style="height:2rem;width:72%"></div>
+        <div class="skel" style="height:0.85rem;width:50%"></div>
+        <div class="skel" style="height:0.85rem;width:65%"></div>
+        <div class="skel" style="height:0.85rem;width:38%"></div>
+        <div class="scan-msg" id="scanMsg">CONSULTING RUNWAY ARCHIVES...</div>
+      </div>
+      <div id="resultsState" style="display:none"></div>
+    </main>
+  </div>
+</div>
+
+<script>
+const STYLES = [
+  { id:'minimal',  label:'极简主义', en:'Minimalist' },
+  { id:'street',   label:'街头潮流', en:'Streetwear'  },
+  { id:'romantic', label:'浪漫主义', en:'Romantic'    },
+  { id:'avant',    label:'先锋前卫', en:'Avant-garde' },
+  { id:'classic',  label:'经典优雅', en:'Classic'     },
+  { id:'sport',    label:'运动休闲', en:'Athleisure'  },
+];
+const BRANDS = [
+  { id:'aritzia',    name:'Aritzia',        tier:'mid',    url:'https://www.aritzia.com/en/sale' },
+  { id:'lululemon',  name:'Lululemon',       tier:'mid',    url:'https://shop.lululemon.com/c/sale' },
+  { id:'ssense',     name:'SSENSE',          tier:'luxury', url:'https://www.ssense.com/en-ca/sale' },
+  { id:'theory',     name:'Theory',          tier:'luxury', url:'https://www.theory.com/sale' },
+  { id:'oakfort',    name:'Oak + Fort',      tier:'mid',    url:'https://oakandfort.com/collections/sale' },
+  { id:'clubmonaco', name:'Club Monaco',     tier:'mid',    url:'https://www.clubmonaco.com/en/sale' },
+  { id:'banana',     name:'Banana Republic', tier:'mid',    url:'https://bananarepublic.gapcanada.ca' },
+  { id:'nordstrom',  name:'Nordstrom CA',    tier:'luxury', url:'https://www.nordstrom.com/browse/sale' },
+  { id:'hm',         name:'H&M',             tier:'budget', url:'https://www2.hm.com/en_ca/sale.html' },
+  { id:'reitmans',   name:'Reitmans',        tier:'budget', url:'https://www.reitmans.com/en/sale' },
+];
+const BUDGETS = [
+  { id:'under50',  label:'Under $50'   },
+  { id:'50to150',  label:'$50 – $150'  },
+  { id:'150to300', label:'$150 – $300' },
+  { id:'300plus',  label:'$300+'       },
+];
+const TIERS = [['budget','ACCESSIBLE'],['mid','MID-RANGE'],['luxury','LUXURY']];
+
+let activeStyle=null, activeBrands=new Set(), activeBudget=null;
+let activeSection='style', activeTab='trends', resultData=null;
+
+function init() {
+  const sc = document.getElementById('styleChips');
+  STYLES.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'chip style-chip';
+    b.dataset.id = s.id;
+    b.innerHTML = `<span>${s.label}</span><span class="en">${s.en.toUpperCase()}</span>`;
+    b.onclick = () => toggleStyle(s.id);
+    sc.appendChild(b);
+  });
+  const bc = document.getElementById('brandChips');
+  TIERS.forEach(([tier, tLabel]) => {
+    const wrap = document.createElement('div');
+    wrap.style.marginBottom = '1rem';
+    const lbl = document.createElement('div');
+    lbl.className = 'tier-label'; lbl.textContent = tLabel;
+    wrap.appendChild(lbl);
+    const row = document.createElement('div');
+    row.className = 'brand-chips';
+    BRANDS.filter(b => b.tier === tier).forEach(b => {
+      const btn = document.createElement('button');
+      btn.className = 'chip brand-chip';
+      btn.dataset.id = b.id; btn.textContent = b.name;
+      btn.onclick = () => toggleBrand(b.id);
+      row.appendChild(btn);
+    });
+    wrap.appendChild(row); bc.appendChild(wrap);
+  });
+  const budg = document.getElementById('budgetChips');
+  BUDGETS.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'chip budget-chip';
+    btn.dataset.id = b.id; btn.textContent = b.label;
+    btn.onclick = () => toggleBudget(b.id);
+    budg.appendChild(btn);
+  });
+}
+
+function toggleStyle(id) {
+  activeStyle = activeStyle===id ? null : id;
+  document.querySelectorAll('.style-chip').forEach(b => b.classList.toggle('active', b.dataset.id===activeStyle));
+}
+function toggleBrand(id) {
+  activeBrands.has(id) ? activeBrands.delete(id) : activeBrands.add(id);
+  document.querySelectorAll('.brand-chip').forEach(b => b.classList.toggle('active', activeBrands.has(b.dataset.id)));
+}
+function toggleBudget(id) {
+  activeBudget = activeBudget===id ? null : id;
+  document.querySelectorAll('.budget-chip').forEach(b => b.classList.toggle('active', b.dataset.id===activeBudget));
+}
+function switchSection(sec) {
+  activeSection = sec;
+  document.querySelectorAll('.sec-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&sec==='style')||(i===1&&sec==='deals')));
+  document.getElementById('panel-style').style.display = sec==='style' ? '' : 'none';
+  document.getElementById('panel-deals').style.display = sec==='deals' ? '' : 'none';
+}
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.result-tab').forEach(t => t.classList.toggle('active', t.dataset.tab===tab));
+  renderTab();
+}
+
+async function generate() {
+  const brief = document.getElementById('briefInput').value.trim();
+  const bNames = [...activeBrands].map(id => BRANDS.find(b=>b.id===id)?.name).filter(Boolean);
+  const budgetLabel = BUDGETS.find(b=>b.id===activeBudget)?.label || '';
+  const sLabel = STYLES.find(s=>s.id===activeStyle)?.label || '';
+  const sEn = STYLES.find(s=>s.id===activeStyle)?.en || '';
+  if (!activeStyle && !brief && bNames.length===0) { showError('请选择风格或品牌'); return; }
+
+  setLoading(true, bNames.length>0);
+
+  const prompt = [
+    sLabel ? `风格偏好：${sLabel}（${sEn}）。` : '',
+    brief  ? `补充需求：${brief}。` : '',
+    '请搜索2025年最新时装周资讯，分析当季核心趋势，给出3套穿搭方案。',
+    bNames.length > 0
+      ? `同时请搜索以下加拿大品牌当前的折扣/Sale商品：${bNames.join('、')}。${budgetLabel?`预算：${budgetLabel} CAD。`:''}为每个品牌找1-2个值得买的折扣单品，说明理由并附购买链接。deals数组按品牌展示。`
+      : 'deals返回空数组[]。',
+  ].filter(Boolean).join(' ');
+
+  const sys = `你是顶级时尚造型师，熟悉加拿大零售市场。只返回JSON，无其他文字或markdown：
+{"headline":"","season":"","summary":"","trends":[{"name":"","desc":"","items":["","",""],"colorStory":""}],"outfits":[{"title":"","occasion":"","look":["","","",""],"tip":""}],"palette":{"story":"","hex":["","","",""]},"deals":[{"brand":"","item":"","originalPrice":"","salePrice":"","discount":"","why":"","url":""}]}`;
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: sys,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    const json = await res.json();
+    if (json.error) throw new Error(json.error.message || json.error);
+    const text = json.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    resultData = JSON.parse(text.replace(/```json|```/g,'').trim());
+    activeTab = (bNames.length>0 && resultData.deals?.length>0) ? 'deals' : 'trends';
+    setLoading(false);
+    renderResults();
+  } catch(e) {
+    setLoading(false);
+    showError('分析失败：' + (e.message || '请重试'));
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg; el.style.display = '';
+  setTimeout(()=>el.style.display='none', 5000);
+}
+function setLoading(on, isDeals=false) {
+  document.getElementById('emptyState').style.display = on||resultData ? 'none' : '';
+  document.getElementById('skeletonState').style.display = on ? '' : 'none';
+  document.getElementById('resultsState').style.display = (!on && resultData) ? '' : 'none';
+  document.getElementById('scanMsg').textContent = isDeals ? 'SCANNING SALE RACKS...' : 'CONSULTING RUNWAY ARCHIVES...';
+  const btn = document.getElementById('generateBtn');
+  btn.textContent = on ? 'SEARCHING...' : 'GENERATE REPORT →';
+  btn.className = 'cta-btn' + (on ? ' loading' : '');
+  btn.disabled = on;
+}
+
+function renderResults() {
+  const d = resultData;
+  const wrap = document.getElementById('resultsState');
+  wrap.style.display = '';
+  const tabs = [['trends','KEY TRENDS'],['outfits','OUTFITS']];
+  if (d.deals?.length>0) tabs.push(['deals',`CA DEALS (${d.deals.length})`]);
+  wrap.innerHTML = `
+    <div class="fu1">
+      <div class="season-tag">${esc(d.season||'')}</div>
+      <div class="headline">${esc(d.headline)}</div>
+      <div class="summary">${esc(d.summary)}</div>
+    </div>
+    <hr class="divider">
+    ${d.palette?.hex?.length ? `
+    <div class="fu2" style="margin-bottom:1.8rem">
+      <div class="label">COLOUR STORY</div>
+      <div class="palette-row">${d.palette.hex.map((c,i)=>`
+        <div class="swatch-wrap">
+          <div style="width:${38+i*7}px;height:${38+i*7}px;background:${esc(c)};border:1px solid #1a1a1a"></div>
+          <div class="swatch-hex">${esc(c)}</div>
+        </div>`).join('')}</div>
+      <div class="palette-story">${esc(d.palette.story)}</div>
+    </div>` : ''}
+    <div class="fu3">
+      <div class="result-tabs">${tabs.map(([t,l])=>`<button class="result-tab${t===activeTab?' active':''}" data-tab="${t}" onclick="switchTab('${t}')">${l}</button>`).join('')}</div>
+      <div id="tabContent"></div>
+    </div>`;
+  renderTab();
+}
+
+function renderTab() {
+  const d = resultData;
+  const el = document.getElementById('tabContent');
+  if (!el || !d) return;
+  if (activeTab==='trends') {
+    el.innerHTML = (d.trends||[]).map((tr,i)=>`
+      <div class="trend-card">
+        <div class="trend-header"><div class="trend-name">${esc(tr.name)}</div><div class="trend-num">0${i+1}</div></div>
+        <div class="trend-desc">${esc(tr.desc)}</div>
+        <div class="tags">${(tr.items||[]).map(item=>`<span class="tag">${esc(item)}</span>`).join('')}</div>
+        ${tr.colorStory?`<div class="color-story">${esc(tr.colorStory)}</div>`:''}
+      </div>`).join('');
+  } else if (activeTab==='outfits') {
+    el.innerHTML = `<div class="outfits-grid">${(d.outfits||[]).map((o,i)=>`
+      <div class="outfit-card">
+        <div class="outfit-meta"><span class="look-num">LOOK ${String(i+1).padStart(2,'0')}</span><span class="occasion">${esc((o.occasion||'').toUpperCase())}</span></div>
+        <div class="outfit-title">${esc(o.title)}</div>
+        ${(o.look||[]).map(item=>`<div class="look-item"><span class="arrow">▸</span><span class="look-text">${esc(item)}</span></div>`).join('')}
+        <div class="outfit-tip">${esc(o.tip)}</div>
+      </div>`).join('')}</div>`;
+  } else if (activeTab==='deals') {
+    el.innerHTML = `
+      <div class="deals-intro">AI-curated sale picks aligned with current runway trends. Prices in CAD.</div>
+      <div class="deals-grid">${(d.deals||[]).map(deal=>`
+        <div class="deal-card">
+          <div class="deal-top">
+            <div class="deal-brand">${esc((deal.brand||'').toUpperCase())}</div>
+            ${deal.discount?`<div class="deal-badge">${esc(deal.discount)} OFF</div>`:''}
+          </div>
+          <div class="deal-item">${esc(deal.item)}</div>
+          <div class="deal-prices">
+            ${deal.salePrice?`<span class="sale-price">${esc(deal.salePrice)}</span>`:''}
+            ${deal.originalPrice?`<span class="orig-price">${esc(deal.originalPrice)}</span>`:''}
+          </div>
+          <div class="deal-why">${esc(deal.why)}</div>
+          ${deal.url?`<a href="${esc(deal.url)}" class="shop-link" target="_blank" rel="noopener">SHOP NOW →</a>`:''}
+        </div>`).join('')}</div>`;
+  }
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+init();
+</script>
+</body>
+</html>
